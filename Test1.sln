@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test1", "Test1\Test1.csproj", "{466F90D5-1B36-45D3-B142-27AE19060A19}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{466F90D5-1B36-45D3-B142-27AE19060A19}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerLibrary", "WorkerLibrary\WorkerLibrary.csproj", "{6216FC4F-16EC-4EB8-9F76-D7F3359E595E}"
 EndProject

@@ -6,7 +6,7 @@ using WorkerLibrary;
 using WorkerLibrary.Enums;
 using WorkerLibrary.Interfaces;
 
-namespace Test1
+namespace ConsoleApp
 {
     class Program
     {
