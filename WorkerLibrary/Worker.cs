@@ -7,17 +7,16 @@ using WorkerLibrary.Interfaces;
 
 namespace WorkerLibrary
 {
-    public class Worker : ISimpleWorker
+    public sealed class Worker
     {
-        private Worker()
+        public Worker(ConcurrentQueue<IWork> queue)
         {
+            WorkerQueue = queue ?? throw new ArgumentNullException(nameof(queue));
         }
 
         #region properties & fields
 
-        public static Worker GetInstance { get; } = new Worker();
-
-        private readonly ConcurrentQueue<SimpleWork> _internalQueue = new ConcurrentQueue<SimpleWork>();
+        public ConcurrentQueue<IWork> WorkerQueue { get; }
 
         public WorkerState State { get; private set; } = WorkerState.Stopped;
 
@@ -58,21 +57,6 @@ namespace WorkerLibrary
             _stopRequested = true;
         }
 
-        public void Enqueue(params SimpleWork[] workToDo)
-        {
-            if (workToDo == null) throw new ArgumentNullException(nameof(workToDo));
-
-            foreach (var work in workToDo)
-            {
-                _internalQueue.Enqueue(work);
-            }
-        }
-
-        public void ResetQueue(SimpleWork workToDo)
-        {
-            _internalQueue.Clear();
-        }
-
         #endregion
 
 
@@ -80,17 +64,26 @@ namespace WorkerLibrary
 
         private void DoWork()
         {
-            while (!_stopRequested)
+            while (true)
             {
-                while (!_stopRequested && _internalQueue.TryDequeue(out var work))
+                while (!_stopRequested && WorkerQueue.TryDequeue(out var work))
                 {
                     ChangeState(WorkerState.Working);
-                    var workerEventArgs = new WorkerEventArgs {WorkName = work.Name, WorkDuration = work.DurationSeconds};
+                    var workerEventArgs = new WorkerEventArgs {WorkName = work.Name};
 
                     WorkStarting?.Invoke(this, workerEventArgs);
 
                     // здесь делаем работу
-                    Thread.Sleep(work.DurationSeconds * 1000);
+                    try
+                    {
+                        work.DoWork();
+                    }
+                    catch (Exception)
+                    {
+                        //log?
+                        Console.WriteLine($"Ошибка при выполнении {work.Name}.");
+                    }
+
 
                     WorkCompleted?.Invoke(this, workerEventArgs);
                 }
@@ -100,10 +93,15 @@ namespace WorkerLibrary
                     WorkerIdling?.Invoke(this, EventArgs.Empty);
                     ChangeState(WorkerState.Idle);
                 }
-                Thread.Sleep(100); 
+                else
+                {
+                    ChangeState(WorkerState.Stopped);
+                    _stopRequested = false;
+                    return;
+                }
+
+                Thread.Sleep(100);
             }
-            ChangeState(WorkerState.Stopped);
-            _stopRequested = false;
         }
 
         private void ChangeState(WorkerState newState)

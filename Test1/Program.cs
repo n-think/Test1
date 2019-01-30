@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
 using WorkerLibrary;
 using WorkerLibrary.Enums;
+using WorkerLibrary.Interfaces;
 
 namespace Test1
 {
@@ -14,7 +16,7 @@ namespace Test1
 
         static void Main(string[] args)
         {
-            var worker = Worker.GetInstance;
+            var worker = new Worker(new ConcurrentQueue<IWork>());
             stopwatch.Start();
 
             ConfigureWorker(worker);
@@ -23,7 +25,10 @@ namespace Test1
             MainWriteLine("Нагружаем группой заданий 1.");
 
             MainWriteLine($"Начали ставить в очередь {firstBatch.Length} заданий.");
-            worker.Enqueue(firstBatch);
+            foreach (var work in firstBatch)
+            {
+                worker.WorkerQueue.Enqueue(work); 
+            }
             MainWriteLine($"Закончили ставить в очередь {firstBatch.Length} заданий.\r\n");
 
             MainWriteLine("Запускаем работника.");
@@ -33,7 +38,10 @@ namespace Test1
             MainWriteLine("Нагружаем группой заданий 2");
 
             MainWriteLine($"Начали ставить в очередь {secondBatch.Length} заданий.");
-            worker.Enqueue(secondBatch);
+            foreach (var work in secondBatch)
+            {
+                worker.WorkerQueue.Enqueue(work); 
+            }
             MainWriteLine($"Закончили ставить в очередь {secondBatch.Length} заданий.\r\n");
 
             //ждем пока закончит
@@ -49,7 +57,10 @@ namespace Test1
             MainWriteLine("Нагружаем группой заданий 3.");
 
             MainWriteLine($"Начали ставить в очередь {thirdBatch.Length} заданий.");
-            worker.Enqueue(thirdBatch);
+            foreach (var work in thirdBatch)
+            {
+                worker.WorkerQueue.Enqueue(work); 
+            }
             MainWriteLine($"Закончили ставить в очередь {thirdBatch.Length} заданий.\r\n");
 
             Thread.Sleep(1000);
@@ -57,12 +68,12 @@ namespace Test1
             worker.Stop();
             
             //waiting for worker to finish
-            MainWriteLine("Ждем пока работник разгребет последнюю партию.");
+            MainWriteLine("Ждем пока работник закончит уже начатую работу.");
             while (worker.State == WorkerState.Working)
             {
                 Thread.Sleep(100);
             }
-            MainWriteLine("Работник закончил с последней партией.");
+            MainWriteLine("Работник закончил с последней работой.");
             
             MainWriteLine("Конец метода Main.");
 
@@ -74,7 +85,7 @@ namespace Test1
             var data = new SimpleWork[count];
             for (var i = 0; i < count; i++)
             {
-                data[i] = new SimpleWork(rnd.Next(2, 5), $"work {workCounter++}");
+                data[i] = new SimpleWork($"work {workCounter++}");
             }
 
             return data;
@@ -85,10 +96,10 @@ namespace Test1
             if (worker == null) throw new ArgumentNullException(nameof(worker));
 
             worker.WorkStarting += (obj, ar) =>
-                    Console.WriteLine($"{GetTime()}: Работяга начал работу: {ar.WorkName} с длительностью: {ar.WorkDuration} секунд.");
+                    Console.WriteLine($"{GetTime()}: Работяга начал работу: {ar.WorkName}");
 
             worker.WorkCompleted += (obj, ar) =>
-                    Console.WriteLine($"{GetTime()}: Работяга закончил работу: {ar.WorkName} с длительностью: {ar.WorkDuration} секунд.\r\n");
+                    Console.WriteLine($"{GetTime()}: Работяга закончил работу: {ar.WorkName}\r\n");
 
             worker.WorkerStarted += (o, a) => Console.WriteLine($"{GetTime()}: Работник запустился.");
             worker.WorkerStopped += (o, a) => Console.WriteLine($"{GetTime()}: Работник остановился.");

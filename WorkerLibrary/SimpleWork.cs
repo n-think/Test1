@@ -1,18 +1,26 @@
 using System;
+using System.Threading;
+using WorkerLibrary.Interfaces;
 
 namespace WorkerLibrary
 {
-    public class SimpleWork
+    public class SimpleWork : IWork
     {
-        public SimpleWork(int duration, string name)
+        public SimpleWork(string name)
         {
-            if (name == null) throw new ArgumentNullException(nameof(name));
-            if (duration <= 0) throw new ArgumentOutOfRangeException(nameof(duration));
+            if (string.IsNullOrEmpty(name)) throw new ArgumentException(nameof(name));
 
-            DurationSeconds = duration;
             Name = name;
         }
-        public int DurationSeconds { get; }
+
+        public bool Completed { get; private set; }
         public string Name { get; }
+
+        public void DoWork()
+        {
+            Console.WriteLine($"Производится работа {Name}");
+            Thread.Sleep(2000);
+            Completed = true;
+        }
     }
 }
