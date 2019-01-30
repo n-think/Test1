@@ -1,0 +1,9 @@
+C:\Users\Administrator\RiderProjects\Test1\WorkerLibrary\bin\Debug\netcoreapp2.2\WorkerLibrary.deps.json
+C:\Users\Administrator\RiderProjects\Test1\WorkerLibrary\bin\Debug\netcoreapp2.2\WorkerLibrary.dll
+C:\Users\Administrator\RiderProjects\Test1\WorkerLibrary\bin\Debug\netcoreapp2.2\WorkerLibrary.pdb
+C:\Users\Administrator\RiderProjects\Test1\WorkerLibrary\obj\Debug\netcoreapp2.2\WorkerLibrary.csprojAssemblyReference.cache
+C:\Users\Administrator\RiderProjects\Test1\WorkerLibrary\obj\Debug\netcoreapp2.2\WorkerLibrary.csproj.CoreCompileInputs.cache
+C:\Users\Administrator\RiderProjects\Test1\WorkerLibrary\obj\Debug\netcoreapp2.2\WorkerLibrary.AssemblyInfoInputs.cache
+C:\Users\Administrator\RiderProjects\Test1\WorkerLibrary\obj\Debug\netcoreapp2.2\WorkerLibrary.AssemblyInfo.cs
+C:\Users\Administrator\RiderProjects\Test1\WorkerLibrary\obj\Debug\netcoreapp2.2\WorkerLibrary.dll
+C:\Users\Administrator\RiderProjects\Test1\WorkerLibrary\obj\Debug\netcoreapp2.2\WorkerLibrary.pdb
