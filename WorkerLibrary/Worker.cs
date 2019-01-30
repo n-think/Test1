@@ -48,6 +48,8 @@ namespace WorkerLibrary
                 WorkerStarted?.Invoke(this, EventArgs.Empty);
                 StartWorkInternal();
             }
+
+            _stopRequested = false;
         }
 
         public void Stop()
