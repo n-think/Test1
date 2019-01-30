@@ -23,6 +23,8 @@ namespace WorkerLibrary
 
         private readonly object _stateLock = new object();
 
+        private bool _stopRequested = false;
+
         #endregion
 
 
@@ -51,7 +53,7 @@ namespace WorkerLibrary
         public void Stop()
         {
             WorkerStopped?.Invoke(this, EventArgs.Empty);
-            ChangeState(WorkerState.Stopped);
+            _stopRequested = true;
         }
 
         public void Enqueue(params SimpleWork[] workToDo)
@@ -76,27 +78,30 @@ namespace WorkerLibrary
 
         private void DoWork()
         {
-            while (State!= WorkerState.Stopped)
+            while (!_stopRequested)
             {
-                while (State != WorkerState.Stopped && _internalQueue.TryDequeue(out var work))
+                while (!_stopRequested && _internalQueue.TryDequeue(out var work))
                 {
-                    State = WorkerState.Working;
+                    ChangeState(WorkerState.Working);
                     var workerEventArgs = new WorkerEventArgs {WorkName = work.Name, WorkDuration = work.DurationSeconds};
 
                     WorkStarting?.Invoke(this, workerEventArgs);
 
+                    // здесь делаем работу
                     Thread.Sleep(work.DurationSeconds * 1000);
 
                     WorkCompleted?.Invoke(this, workerEventArgs);
                 }
 
-                if (State != WorkerState.Stopped)
+                if (!_stopRequested)
                 {
                     WorkerIdling?.Invoke(this, EventArgs.Empty);
                     ChangeState(WorkerState.Idle);
                 }
                 Thread.Sleep(100); 
             }
+            ChangeState(WorkerState.Stopped);
+            _stopRequested = false;
         }
 
         private void ChangeState(WorkerState newState)

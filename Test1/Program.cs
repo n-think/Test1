@@ -20,43 +20,51 @@ namespace Test1
             ConfigureWorker(worker);
 
             var firstBatch = GetWorkData(2);
-            MainWriteLine("Adding first batch.");
+            MainWriteLine("Нагружаем группой заданий 1.");
 
-            MainWriteLine($"Queueing {firstBatch.Length} tasks.");
+            MainWriteLine($"Начали ставить в очередь {firstBatch.Length} заданий.");
             worker.Enqueue(firstBatch);
-            MainWriteLine($"Finished queueing {firstBatch.Length} tasks.\r\n");
+            MainWriteLine($"Закончили ставить в очередь {firstBatch.Length} заданий.\r\n");
 
-            MainWriteLine("Starting worker.");
+            MainWriteLine("Запускаем работника.");
             worker.Start();
 
             var secondBatch = GetWorkData(2);
-            MainWriteLine("Adding second batch.");
+            MainWriteLine("Нагружаем группой заданий 2");
 
-            MainWriteLine($"Queueing {secondBatch.Length} tasks.");
+            MainWriteLine($"Начали ставить в очередь {secondBatch.Length} заданий.");
             worker.Enqueue(secondBatch);
-            MainWriteLine($"Finished queueing {secondBatch.Length} tasks.\r\n");
+            MainWriteLine($"Закончили ставить в очередь {secondBatch.Length} заданий.\r\n");
 
-            //waiting for worker to finish
-            MainWriteLine("Waiting for worker to finish first two batches");
+            //ждем пока закончит
+            MainWriteLine("Ждем пока работник разгребет первые две партии.");
             while (worker.State == WorkerState.Working)
             {
                 Thread.Sleep(100);
             }
 
-            MainWriteLine("Finished waiting for worker to finish first two batches");
+            MainWriteLine("Работник разгрёб первые две партии.");
 
             var thirdBatch = GetWorkData(2);
-            MainWriteLine("Adding third batch.");
+            MainWriteLine("Нагружаем группой заданий 3.");
 
-            MainWriteLine($"Queueing {thirdBatch.Length} tasks.");
-            worker.Enqueue(secondBatch);
-            MainWriteLine($"Finished queueing {thirdBatch.Length} tasks.\r\n");
+            MainWriteLine($"Начали ставить в очередь {thirdBatch.Length} заданий.");
+            worker.Enqueue(thirdBatch);
+            MainWriteLine($"Закончили ставить в очередь {thirdBatch.Length} заданий.\r\n");
 
             Thread.Sleep(1000);
-            MainWriteLine("Stopping worker...");
+            MainWriteLine("Останавливаем работника...");
             worker.Stop();
-
-            MainWriteLine("end of Main.");
+            
+            //waiting for worker to finish
+            MainWriteLine("Ждем пока работник разгребет последнюю партию.");
+            while (worker.State == WorkerState.Working)
+            {
+                Thread.Sleep(100);
+            }
+            MainWriteLine("Работник закончил с последней партией.");
+            
+            MainWriteLine("Конец метода Main.");
 
             Console.ReadKey();
         }
@@ -77,14 +85,14 @@ namespace Test1
             if (worker == null) throw new ArgumentNullException(nameof(worker));
 
             worker.WorkStarting += (obj, ar) =>
-                    Console.WriteLine($"{GetTime()}: Worker started work: {ar.WorkName} with duration: {ar.WorkDuration} seconds.");
+                    Console.WriteLine($"{GetTime()}: Работяга начал работу: {ar.WorkName} с длительностью: {ar.WorkDuration} секунд.");
 
             worker.WorkCompleted += (obj, ar) =>
-                    Console.WriteLine($"{GetTime()}: Worker completed work: {ar.WorkName} with duration: {ar.WorkDuration} seconds.\r\n");
+                    Console.WriteLine($"{GetTime()}: Работяга закончил работу: {ar.WorkName} с длительностью: {ar.WorkDuration} секунд.\r\n");
 
-            worker.WorkerStarted += (o, a) => Console.WriteLine($"{GetTime()}: Worker started.");
-            worker.WorkerStopped += (o, a) => Console.WriteLine($"{GetTime()}: Worker stopped.");
-            worker.WorkerIdling += (o, a) => Console.WriteLine($"{GetTime()}: Worker is idling.");
+            worker.WorkerStarted += (o, a) => Console.WriteLine($"{GetTime()}: Работник запустился.");
+            worker.WorkerStopped += (o, a) => Console.WriteLine($"{GetTime()}: Работник остановился.");
+            worker.WorkerIdling += (o, a) => Console.WriteLine($"{GetTime()}: Работник простаивает.");
         }
 
         private static string GetTime()
